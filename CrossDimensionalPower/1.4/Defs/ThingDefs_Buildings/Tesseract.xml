@@ -19,7 +19,10 @@
 		<label>Tesseract</label>
 		<description>Transfer Power Across Dimension, between multiple colonies</description>
 		<costList>
-			<Steel>15</Steel>
+			<Plasteel>200</Plasteel>
+			<AIPersonaCore>1</AIPersonaCore>
+			<ComponentSpacer>20</ComponentSpacer>
+			<ComponentIndustrial>150</ComponentIndustrial>
 		</costList>
 		<graphicData>
 			<texPath>power_relay</texPath>
@@ -34,8 +37,10 @@
 			<li Class="CompProperties_Flickable"/>
 			<li Class="CrossDimensionalPower.CompProperties_Tesseract">
 				<transmitsPower>true</transmitsPower>
-				<lossPercent>25</lossPercent>
 			</li>
 		</comps>
+		<researchPrerequisites>
+			<li>AdvancedFabrication</li>
+		</researchPrerequisites>
 	</ThingDef>
 </Defs>
