@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<ThingDef Name="TeleporterBase" ParentName="BuildingBase" Abstract="true">
+		<tickerType>Normal</tickerType>
+		<thingClass>Building</thingClass>
+		<category>Building</category>
+		<rotatable>false</rotatable>
+		<neverMultiSelect>true</neverMultiSelect>
+		<designationCategory>Power</designationCategory>
+		<surfaceType>Item</surfaceType>
+		<constructEffect>ConstructMetal</constructEffect>
+		<researchPrerequisites>
+		</researchPrerequisites>
+		<altitudeLayer>BuildingOnTop</altitudeLayer>
+	</ThingDef>
+
+	<ThingDef ParentName="TeleporterBase">
+		<defName>CDP_Tesseract</defName>
+		<label>Tesseract</label>
+		<description>Transfer Power Across Dimension, between multiple colonies</description>
+		<costList>
+			<Steel>15</Steel>
+		</costList>
+		<graphicData>
+			<texPath>Things/Building/Power/PowerSwitch</texPath>
+			<graphicClass>Graphic_Single</graphicClass>
+			<shaderType>Transparent</shaderType>
+			<damageData>
+				<rect>(0.2,0.2,0.6,0.6)</rect>
+			</damageData>
+		</graphicData>
+		<comps>
+			<li Class="CompProperties_Power">
+				<compClass>CompPowerTransmitter</compClass>
+				<transmitsPower>true</transmitsPower>
+			</li>
+			<li Class="CompProperties_Flickable"/>
+			<li Class="CrossDimensionalPower.CompProperties_Tesseract">
+				
+			</li>
+		</comps>
+	</ThingDef>
+</Defs>

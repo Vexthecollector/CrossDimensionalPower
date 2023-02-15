@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<name>Cross Dimensional Power</name>
+	<author>Vex</author>
+	<packageId>Vex.CrossDimensionalPower</packageId>
+	<supportedVersions>
+		<li>1.4</li>
+	</supportedVersions>
+	<modDependencies>
+	</modDependencies>
+	<loadAfter>
+		<li>Ludeon.RimWorld</li>
+	</loadAfter>
+	<description>Distribute Power accross multiple tiles!</description>
+</ModMetaData>
