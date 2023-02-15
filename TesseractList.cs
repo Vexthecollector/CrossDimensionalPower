@@ -106,8 +106,9 @@ namespace CrossDimensionalPower
         {
             if (TesseractNet.Instance.TesseractLists.NullOrEmpty()) return;
             Log.Message("Equalizing");
-            TesseractNet.Instance.TesseractLists.OrderByDescending(item => item.curEnergyGain);
-            float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item => { if (item.curEnergyGain > 0) return item.curEnergyGain; return 0; });
+            
+            float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item =>item.curEnergyGain);
+            //float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item => { if (item.curEnergyGain > 0) return item.curEnergyGain; return 0; });
             Log.Message("Total: "+totalAvailable);
             foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
             {
@@ -126,7 +127,7 @@ namespace CrossDimensionalPower
                     tesseractClass.tesseract.curPower = tesseractClass.curEnergyGain;
                 }
             }
-
+            Log.Message("Total after set to 0: " + totalAvailable);
             if (totalAvailable / TesseractNet.Instance.TesseractLists.Count() > 2000)
             {
                 foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
@@ -139,12 +140,13 @@ namespace CrossDimensionalPower
 
                 }
             }
+            Log.Message("Total After 2000 each: " + totalAvailable);
             CheckBatteries();
 
             List<TesseractList> tesseractClassesWB = TesseractNet.Instance.TesseractLists.Where(item => item.maxStoredEnergy > 0).ToList();
             float toDistribute = totalAvailable / tesseractClassesWB.Count();
             totalAvailable = 0;
-
+            Log.Message("toDistribute: " + toDistribute);
             foreach (TesseractList tesseractClass in tesseractClassesWB)
             {
                 tesseractClass.curEnergyGain = toDistribute;
@@ -231,7 +233,7 @@ namespace CrossDimensionalPower
             {
                 if (CheckForNet(tesseractClass.powerNet))
                 {
-                    tesseractClass.curEnergyGain = (tesseractClass.powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseractClass.tesseract.curPower;
+                    tesseractClass.curEnergyGain = (tesseractClass.powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseractClass.tesseract.PowerOutput;
                     tesseractClass.tesseract = (CompsTesseract)tesseractClass.powerNet.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
                 }
                 else
@@ -255,7 +257,7 @@ namespace CrossDimensionalPower
             if (!TesseractNet.Instance.TesseractLists.Any(item => item.powerNet == powerNet))
             {
                 CompsTesseract tesseract = (CompsTesseract)powerNet.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                TesseractNet.Instance.TesseractLists.Add(new TesseractList(powerNet, (powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseract.curPower, tesseract));
+                TesseractNet.Instance.TesseractLists.Add(new TesseractList(powerNet, (powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseract.PowerOutput, tesseract));
             }
         }
 
