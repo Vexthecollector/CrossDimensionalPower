@@ -15,14 +15,15 @@
 	</ThingDef>
 
 	<ThingDef ParentName="TeleporterBase">
-		<defName>CDP_Tesseract</defName>
+		<defName>CDPTesseract</defName>
 		<label>Tesseract</label>
 		<description>Transfer Power Across Dimension, between multiple colonies</description>
 		<costList>
 			<Steel>15</Steel>
 		</costList>
 		<graphicData>
-			<texPath>Things/Building/Power/PowerSwitch</texPath>
+			<texPath>power_relay</texPath>
+			<drawSize>2,2</drawSize>
 			<graphicClass>Graphic_Single</graphicClass>
 			<shaderType>Transparent</shaderType>
 			<damageData>
@@ -30,13 +31,10 @@
 			</damageData>
 		</graphicData>
 		<comps>
-			<li Class="CompProperties_Power">
-				<compClass>CompPowerTransmitter</compClass>
-				<transmitsPower>true</transmitsPower>
-			</li>
 			<li Class="CompProperties_Flickable"/>
 			<li Class="CrossDimensionalPower.CompProperties_Tesseract">
-				
+				<transmitsPower>true</transmitsPower>
+				<lossPercent>25</lossPercent>
 			</li>
 		</comps>
 	</ThingDef>

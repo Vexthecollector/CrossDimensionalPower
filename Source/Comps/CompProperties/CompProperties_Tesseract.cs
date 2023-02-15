@@ -15,5 +15,7 @@ namespace CrossDimensionalPower
             compClass = typeof(CompsTesseract);
         }
         public ThingDef thing;
+        public float lossPercent=0;
+
     }
 }
