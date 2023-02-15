@@ -12,11 +12,10 @@ namespace CrossDimensionalPower
     [StaticConstructorOnStartup]
     public class CompsTesseract : CompPowerTrader
     {
-        private static readonly Texture2D teleporterIcon = ContentFinder<Texture2D>.Get("teleporter");
-        private static readonly Texture2D renameIcon = ContentFinder<Texture2D>.Get("relay_rename");
         public string Name;
         private CompFlickable compFlickable;
         private CompBreakdownable compBreakdownable;
+        public float curPower;
         public new CompProperties_Tesseract Props => (CompProperties_Tesseract)props;
 
 
@@ -57,28 +56,6 @@ namespace CrossDimensionalPower
                 return (compBreakdownable == null || !compBreakdownable.BrokenDown)
                        && (compFlickable == null || compFlickable.SwitchIsOn);
             }
-        }
-
-
-
-        public float GetPowerNetStrength()
-        {
-            return this.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
-        }
-
-        public float GetPowerNetStored()
-        {
-            return this.PowerNet.CurrentStoredEnergy();
-        }
-
-        public float CompareStrength(PowerNet net1, PowerNet net2)
-        {
-            return (net1.CurrentEnergyGainRate() - net2.CurrentEnergyGainRate()) / CompPower.WattsToWattDaysPerTick;
-        }
-
-        public void setPowerOutput(float output)
-        {
-            base.PowerOutput = output;
         }
 
     }

@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>CrossDimensionalPower\1.4\Assemblies\</OutputPath>
+    <OutputPath>CrossDimensionalPower2\1.4\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -64,12 +64,12 @@
     <Compile Include="TesseractList.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CrossDimensionalPower\1.4\Defs\ThingDefs_Buildings\Tesseract.xml" />
-    <Content Include="CrossDimensionalPower\About\About.xml" />
-    <Content Include="CrossDimensionalPower\Textures\teleporter.png" />
+    <Content Include="CrossDimensionalPower2\1.4\Defs\ThingDefs_Buildings\Tesseract.xml" />
+    <Content Include="CrossDimensionalPower2\About\About.xml" />
+    <Content Include="CrossDimensionalPower2\Textures\teleporter.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CrossDimensionalPower\1.4\Assemblies\" />
+    <Folder Include="CrossDimensionalPower2\1.4\Assemblies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

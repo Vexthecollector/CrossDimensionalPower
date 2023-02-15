@@ -9,22 +9,6 @@ using RimWorld;
 
 namespace CrossDimensionalPower
 {
-    public class TesseractList
-    {
-
-        public static List<CompsTesseract> ThisPowerNetTesseracts(CompsTesseract tesseract)
-        {
-            List<CompsTesseract> compsTesseracts = WorldComponent_Tesseracts.Instance.Tesseracts.FindAll(item => item.PowerNet == tesseract.PowerNet);
-            return compsTesseracts;
-        }
-        public static float TesseractPowerOutput(List<CompsTesseract> list)
-        {
-            if (list.NullOrEmpty()) return 0;
-            float positive = list.Sum(item => { if (item.PowerOutput > 0) return item.PowerOutput; else return 0; });
-            return positive;
-        }
-
-    }
 
 
 
@@ -39,32 +23,29 @@ namespace CrossDimensionalPower
             if (timer > 300)
             {
                 timer = 0;
+                TesseractNetManager.Instance.EqualizePower();
             }
         }
 
-        private List<CompsTesseract> tesseracts = new List<CompsTesseract>();
 
         public WorldComponent_Tesseracts(World world) : base(world) => Instance = this;
-        public List<CompsTesseract> Tesseracts
-        {
-            get { return this.tesseracts; }
-        }
 
-
-        /*
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Collections.Look<CompsTesseract>(ref this.tesseracts, "tesseract", LookMode.Reference);
-        }*/
 
     }
 
     public class TesseractNet
     {
-        public static TesseractNet Instance;
+
+
+
+        private static readonly TesseractNet instance = new TesseractNet();
+        public static TesseractNet Instance
+        {
+            get { return instance; }
+        }
         private List<PowerNet> powerNets = new List<PowerNet>();
         private List<CompsTesseract> tesseracts = new List<CompsTesseract>();
+        private List<TesseractList> tesseractLists = new List<TesseractList>();
 
         public List<PowerNet> PowerNets
         {
@@ -74,129 +55,160 @@ namespace CrossDimensionalPower
         {
             get { return this.tesseracts; }
         }
+
+        public List<TesseractList> TesseractLists
+        {
+            get { return this.tesseractLists; }
+        }
     }
 
-    public class TesseractClassIDK
+    public class TesseractList
     {
-        public TesseractClassIDK(PowerNet powerNet, float curEnergyGain, CompsTesseract tesseract)
+        public TesseractList(PowerNet powerNet, float curEnergyGain, CompsTesseract tesseract)
         {
             this.powerNet = powerNet;
             this.curEnergyGain = curEnergyGain;
             this.tesseract = tesseract;
-            
+
+        }
+
+        public TesseractList(PowerNet powerNet, float curEnergyGain)
+        {
+            this.powerNet = powerNet;
+            this.curEnergyGain = curEnergyGain;
+
         }
 
         public PowerNet powerNet;
         public float curEnergyGain;
         public CompsTesseract tesseract;
-        public float curStoredEnergy=0;
-        public float maxStoredEnergy=0;
+        public float curStoredEnergy = 0;
+        public float maxStoredEnergy = 0;
     }
 
 
 
     public class TesseractNetManager
     {
-        List<PowerNet> powerNets = TesseractNet.Instance.PowerNets;
-        List<TesseractClassIDK> tesseractClasses = new List<TesseractClassIDK>();
+        private TesseractNetManager()
+        {
+            TesseractNetConnectionMaker.Instance.GenerateNetsFromTesseracts();
+        }
+
+        private static TesseractNetManager instance = new TesseractNetManager();
+        public static TesseractNetManager Instance
+        {
+            get { return instance; }
+        }
 
 
         public void EqualizePower()
         {
-            CheckBatteries();
-            tesseractClasses.OrderByDescending(item => item.curEnergyGain);
-            float totalAvailable = tesseractClasses.Sum(item => { if (item.curEnergyGain > 0) return item.curEnergyGain; return 0; });
-            foreach (TesseractClassIDK tesseractClass in tesseractClasses.Where(item => item.curEnergyGain < 0))
+            if (TesseractNet.Instance.TesseractLists.NullOrEmpty()) return;
+            Log.Message("Equalizing");
+            TesseractNet.Instance.TesseractLists.OrderByDescending(item => item.curEnergyGain);
+            float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item => { if (item.curEnergyGain > 0) return item.curEnergyGain; return 0; });
+            Log.Message("Total: "+totalAvailable);
+            foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
             {
                 if (tesseractClass.curEnergyGain < totalAvailable)
                 {
                     totalAvailable += tesseractClass.curEnergyGain;
                     tesseractClass.curEnergyGain = 0;
                     tesseractClass.tesseract.PowerOutput = 0;
+                    tesseractClass.tesseract.curPower = 0;
                 }
                 else
                 {
                     tesseractClass.curEnergyGain = tesseractClass.curEnergyGain + totalAvailable;
                     totalAvailable = 0;
                     tesseractClass.tesseract.PowerOutput = tesseractClass.curEnergyGain;
+                    tesseractClass.tesseract.curPower = tesseractClass.curEnergyGain;
                 }
             }
 
-            if (totalAvailable / tesseractClasses.Count() > 2000)
+            if (totalAvailable / TesseractNet.Instance.TesseractLists.Count() > 2000)
             {
-                foreach (TesseractClassIDK tesseractClass in tesseractClasses.Where(item => item.curEnergyGain < 0))
+                foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
                 {
 
                     totalAvailable -= 2000;
                     tesseractClass.curEnergyGain = 2000;
                     tesseractClass.tesseract.PowerOutput = 2000;
+                    tesseractClass.tesseract.curPower = 2000;
 
                 }
             }
+            CheckBatteries();
 
-            List<TesseractClassIDK> tesseractClassesWB = tesseractClasses.Where(item => item.maxStoredEnergy > 0).ToList();
-            float toDistribute=totalAvailable / tesseractClassesWB.Count();
+            List<TesseractList> tesseractClassesWB = TesseractNet.Instance.TesseractLists.Where(item => item.maxStoredEnergy > 0).ToList();
+            float toDistribute = totalAvailable / tesseractClassesWB.Count();
             totalAvailable = 0;
 
-            foreach (TesseractClassIDK tesseractClass in tesseractClassesWB)
+            foreach (TesseractList tesseractClass in tesseractClassesWB)
             {
                 tesseractClass.curEnergyGain = toDistribute;
-                tesseractClass.tesseract.PowerOutput= toDistribute;
+                tesseractClass.tesseract.PowerOutput = toDistribute;
+                tesseractClass.tesseract.curPower = toDistribute;
             }
-
+            TesseractNetConnectionMaker.Instance.RecheckClasses();
         }
 
         public void CheckBatteries()
         {
-            foreach(TesseractClassIDK tesseractClass in tesseractClasses)
+            foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists)
             {
                 if (!tesseractClass.powerNet.batteryComps.NullOrEmpty())
                 {
 
-                tesseractClass.curStoredEnergy = tesseractClass.powerNet.CurrentStoredEnergy();
-                tesseractClass.maxStoredEnergy = tesseractClass.powerNet.batteryComps.Sum(battery => battery.Props.storedEnergyMax);
+                    tesseractClass.curStoredEnergy = tesseractClass.powerNet.CurrentStoredEnergy();
+                    tesseractClass.maxStoredEnergy = tesseractClass.powerNet.batteryComps.Sum(battery => battery.Props.storedEnergyMax);
                 }
-                
+
             }
-            
+
         }
     }
 
     public class TesseractNetConnectionMaker
     {
-        public static TesseractNetConnectionMaker Instance;
-        List<PowerNet> powerNets = TesseractNet.Instance.PowerNets;
-        List<CompsTesseract> tesseracts = TesseractNet.Instance.Tesseracts;
-        List<TesseractClassIDK> tesseractClasses = new List<TesseractClassIDK>();
+
+
+        private static TesseractNetConnectionMaker instance = new TesseractNetConnectionMaker();
+        public static TesseractNetConnectionMaker Instance
+        {
+            get { return instance; }
+        }
+
 
 
         private void AddPowerNet(PowerNet powerNet)
         {
-            powerNets.AddDistinct(powerNet);
+            TesseractNet.Instance.PowerNets.AddDistinct(powerNet);
+            AddClass(powerNet);
 
         }
 
         private void RemovePowerNet(PowerNet powerNet)
         {
-            powerNets.Remove(powerNet);
+            TesseractNet.Instance.PowerNets.Remove(powerNet);
         }
 
         public void AddTesseract(CompsTesseract tesseract)
         {
-            tesseracts.AddDistinct(tesseract);
-            AddPowerNet(tesseract.PowerNet);
-            AddClass(tesseract.PowerNet);
+            Log.Message("Added Tesseract");
+            TesseractNet.Instance.Tesseracts.AddDistinct(tesseract);
         }
 
         public void RemoveTesseract(CompsTesseract tesseract)
         {
-            tesseracts.Remove(tesseract);
+            TesseractNet.Instance.Tesseracts.Remove(tesseract);
             CheckPowerNetsForRemoval(tesseract.PowerNet);
         }
 
         private void CheckPowerNetsForRemoval(PowerNet powerNet)
         {
-            if (tesseracts.Count(item => item.PowerNet == powerNet) == 1)
+            if (TesseractNet.Instance.Tesseracts.Count(item => item.PowerNet == powerNet) == 1)
             {
                 RemovePowerNet(powerNet);
                 RemoveClass(powerNet);
@@ -206,7 +218,7 @@ namespace CrossDimensionalPower
         public void FillClasses()
         {
 
-            foreach (PowerNet powerNet in powerNets)
+            foreach (PowerNet powerNet in TesseractNet.Instance.PowerNets)
             {
                 AddClass(powerNet);
             }
@@ -214,11 +226,12 @@ namespace CrossDimensionalPower
 
         public void RecheckClasses()
         {
-            foreach (TesseractClassIDK tesseractClass in tesseractClasses)
+            GenerateNetsFromTesseracts();
+            foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists)
             {
                 if (CheckForNet(tesseractClass.powerNet))
                 {
-                    tesseractClass.curEnergyGain = tesseractClass.powerNet.CurrentEnergyGainRate();
+                    tesseractClass.curEnergyGain = (tesseractClass.powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseractClass.tesseract.curPower;
                     tesseractClass.tesseract = (CompsTesseract)tesseractClass.powerNet.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
                 }
                 else
@@ -228,20 +241,32 @@ namespace CrossDimensionalPower
             }
         }
 
+        public void GenerateNetsFromTesseracts()
+        {
+            foreach(CompsTesseract tesseract in TesseractNet.Instance.Tesseracts)
+            {
+                AddPowerNet(tesseract.PowerNet);
+            }
+        }
+
         public void AddClass(PowerNet powerNet)
         {
-            if(!tesseractClasses.Any(item => item.powerNet == powerNet))
-                tesseractClasses.Add(new TesseractClassIDK(powerNet, powerNet.CurrentEnergyGainRate(), (CompsTesseract)powerNet.powerComps.First(item => item.GetType() == typeof(CompsTesseract))));
+
+            if (!TesseractNet.Instance.TesseractLists.Any(item => item.powerNet == powerNet))
+            {
+                CompsTesseract tesseract = (CompsTesseract)powerNet.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
+                TesseractNet.Instance.TesseractLists.Add(new TesseractList(powerNet, (powerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - tesseract.curPower, tesseract));
+            }
         }
 
         public void RemoveClass(PowerNet powerNet)
         {
-            tesseractClasses.Remove(tesseractClasses.Find(item => item.powerNet == powerNet));
+            TesseractNet.Instance.TesseractLists.Remove(TesseractNet.Instance.TesseractLists.Find(item => item.powerNet == powerNet));
         }
 
         public bool CheckForNet(PowerNet powerNet)
         {
-            return powerNets.Contains(powerNet);
+            return TesseractNet.Instance.PowerNets.Contains(powerNet);
         }
 
 
