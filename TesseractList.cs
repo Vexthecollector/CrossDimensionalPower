@@ -25,24 +25,29 @@ namespace CrossDimensionalPower
 
     }
 
+
+
     public class WorldComponent_Tesseracts : WorldComponent
     {
         public static WorldComponent_Tesseracts Instance;
 
+
+
         private List<CompsTesseract> tesseracts = new List<CompsTesseract>();
+
         public WorldComponent_Tesseracts(World world) : base(world) => Instance = this;
         public List<CompsTesseract> Tesseracts
         {
             get { return this.tesseracts; }
         }
 
-
-
+        
+        /*
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Collections.Look(ref this.tesseracts, "tesseract", LookMode.Reference);
-        }
+            Scribe_Collections.Look<CompsTesseract>(ref this.tesseracts, "tesseract", LookMode.Reference);
+        }*/
 
     }
 }
