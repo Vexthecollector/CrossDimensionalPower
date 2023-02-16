@@ -24,7 +24,7 @@
 				<ComponentIndustrial>70</ComponentIndustrial>
 		</costList>
 		<graphicData>
-			<texPath>power_relay</texPath>
+			<texPath>Things/Buildings/CDP/power_relay</texPath>
 			<drawSize>2,2</drawSize>
 			<graphicClass>Graphic_Single</graphicClass>
 			<shaderType>Transparent</shaderType>

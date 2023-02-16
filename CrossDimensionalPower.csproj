@@ -70,7 +70,7 @@
   <ItemGroup>
     <Content Include="CrossDimensionalPower2\1.4\Defs\ThingDefs_Buildings\Tesseract.xml" />
     <Content Include="CrossDimensionalPower2\About\About.xml" />
-    <Content Include="CrossDimensionalPower2\Textures\teleporter.png" />
+    <Content Include="CrossDimensionalPower2\Textures\Things\Buildings\CDP\teleporter.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CrossDimensionalPower2\1.4\Assemblies\" />
