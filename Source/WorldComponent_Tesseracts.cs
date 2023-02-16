@@ -20,7 +20,7 @@ namespace CrossDimensionalPower
             if (timer > 300)
             {
                 timer = 0;
-                TesseractNetManager.Instance.EqualizePower();
+                TesseractNetManager.Instance.DistributePower();
             }
         }
 

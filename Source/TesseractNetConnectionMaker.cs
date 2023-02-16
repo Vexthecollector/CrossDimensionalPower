@@ -23,7 +23,7 @@ namespace CrossDimensionalPower
         private void AddPowerNet(CompsTesseract tesseract)
         {
             TesseractNet.Instance.PowerNets.AddDistinct(tesseract.PowerNet);
-            AddClass(tesseract);
+            //AddClass(tesseract);
 
         }
 
@@ -74,9 +74,9 @@ namespace CrossDimensionalPower
         {
             TesseractNet.Instance.Tesseracts.Remove(tesseract);
             RemovePowerNet(tesseract.PowerNet);
-            RemoveClass(tesseract);
+            //RemoveClass(tesseract);
         }
-
+        /*
         public void FillClasses()
         {
 
@@ -84,8 +84,8 @@ namespace CrossDimensionalPower
             {
                 AddClass(tesseract);
             }
-        }
-
+        }*/
+        /*
         public void RecheckClasses()
         {
             GenerateNetsFromTesseracts();
@@ -130,7 +130,7 @@ namespace CrossDimensionalPower
                 }
             }
         }
-
+        */
 
         public void GenerateNetsFromTesseracts()
         {
@@ -141,7 +141,7 @@ namespace CrossDimensionalPower
         }
 
 
-
+        /*
         public void AddClass(CompsTesseract tesseract)
         {
             if (tesseract.TesseractList == null && ((TesseractNet.Instance.TesseractLists.Count() > 0) ?
@@ -171,7 +171,7 @@ namespace CrossDimensionalPower
         {
             return TesseractNet.Instance.PowerNets.Contains(powerNet);
         }
-
+        */
 
     }
 }

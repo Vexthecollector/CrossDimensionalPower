@@ -33,10 +33,10 @@ namespace CrossDimensionalPower
             if (respawningAfterLoad) return;
         }
 
-        public override void PostDeSpawn(Map previousMap)
+        public override void PostDeSpawn(Map map)
         {
-            base.PostDeSpawn(previousMap);
             TesseractNetConnectionMaker.Instance.RemoveTesseract(this);
+            base.PostDeSpawn(map);
         }
 
         public bool CanOutputNow
@@ -48,10 +48,6 @@ namespace CrossDimensionalPower
             }
         }
 
-
-
-
-
         public bool CanInputNow
         {
             get
@@ -59,6 +55,15 @@ namespace CrossDimensionalPower
                 return (compBreakdownable == null || !compBreakdownable.BrokenDown)
                        && (compFlickable == null || compFlickable.SwitchIsOn);
             }
+        }
+
+        public override string CompInspectStringExtra()
+        {
+            string text = "";
+            if(this.PowerOutput<0)
+                text = "Current Power Draw: " + (-this.PowerOutput)+"\n";
+
+            return text+base.CompInspectStringExtra();
         }
 
     }

@@ -19,10 +19,9 @@
 		<label>Tesseract</label>
 		<description>Transfer Power Across Dimension, between multiple colonies</description>
 		<costList>
-			<Plasteel>200</Plasteel>
-			<AIPersonaCore>1</AIPersonaCore>
-			<ComponentSpacer>20</ComponentSpacer>
-			<ComponentIndustrial>150</ComponentIndustrial>
+				<Plasteel>150</Plasteel>
+				<ComponentSpacer>12</ComponentSpacer>
+				<ComponentIndustrial>70</ComponentIndustrial>
 		</costList>
 		<graphicData>
 			<texPath>power_relay</texPath>
@@ -40,7 +39,7 @@
 			</li>
 		</comps>
 		<researchPrerequisites>
-			<li>AdvancedFabrication</li>
+			<li>Fabrication</li>
 		</researchPrerequisites>
 	</ThingDef>
 </Defs>
