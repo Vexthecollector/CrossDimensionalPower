@@ -59,9 +59,9 @@
   <ItemGroup>
     <Compile Include="Source\Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Comps\CompProperties\CompProperties_CDPBattery.cs" />
+    <None Include="Source\Comps\CompProperties\CompProperties_CDPBattery.cs" />
     <Compile Include="Source\Comps\CompProperties\CompProperties_Tesseract.cs" />
-    <Compile Include="Source\Comps\CompsCDPBattery.cs" />
+    <None Include="Source\Comps\CompsCDPBattery.cs" />
     <Compile Include="Source\Comps\CompsTesseract.cs" />
     <Compile Include="Source\TessaractNet.cs" />
     <Compile Include="Source\TesseractList.cs" />

@@ -38,26 +38,40 @@ namespace CrossDimensionalPower
         public void DistributePower()
         {
             List<PowerNet> nets = new List<PowerNet>();
-            TesseractNet.Instance.Tesseracts.ForEach(tes => nets.AddDistinct(tes.PowerNet));
-            float tesPower = TesseractNet.Instance.Tesseracts.Sum(tes => tes.PowerOutput);
+            List<CompsTesseract> tesseracts = TesseractNet.Instance.Tesseracts;
+            //TesseractNet.Instance.Tesseracts.ForEach(tes => nets.AddDistinct(tes.PowerNet));
+            float tesPower = 0;
+            for (int i = tesseracts.Count-1; i >= 0; i--)
+            {
+                nets.AddDistinct(tesseracts[i].PowerNet);
+                tesPower += tesseracts[i].PowerOutput;
+            }
+            //float tesPower = tesseracts.Sum(tes => tes.PowerOutput);
             float totalAvailable = 0;
+
+
+            //Log.Message("Initial Total: "+totalAvailable);
             //Sets all Networks to be net 0 if they have free power.
             foreach (PowerNet net in nets.Where(net => (net.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) > 0))
             {
-                CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                net.powerComps.ForEach(item => { if (item != tesseract && item.GetType() == typeof(CompsTesseract)) item.PowerOutput = 0; });
+                CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item is CompsTesseract);
+                net.powerComps.ForEach(item => { if (item != tesseract && item is CompsTesseract) item.PowerOutput = 0; });
                 tesseract.PowerOutput -= ((net.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick));
                 totalAvailable -= tesseract.PowerOutput;
             }
 
 
 
+
+
+            //Log.Message("All Total: " + totalAvailable);
+
             //Fill up all networks to be at least at 0
             foreach (PowerNet net in nets.Where(net => (GetAllPowerInNetwork(net)) < 0))
             {
                 float curEnergy = GetAllPowerInNetwork(net);
-                CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                net.powerComps.ForEach(item => { if (item != tesseract && item.GetType() == typeof(CompsTesseract)) item.PowerOutput = 0; });
+                CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item is CompsTesseract);
+                net.powerComps.ForEach(item => { if (item != tesseract && item is CompsTesseract) item.PowerOutput = 0; });
                 if (-curEnergy < totalAvailable)
                 {
                     tesseract.PowerOutput = -curEnergy;
@@ -70,13 +84,14 @@ namespace CrossDimensionalPower
                 }
             }
 
+            //Log.Message("Total after all 0: " + totalAvailable);
 
             if ((totalAvailable / nets.Count) > 500)
             {
                 foreach (PowerNet net in nets)
                 {
-                    CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                    net.powerComps.ForEach(item => { if (item != tesseract && item.GetType() == typeof(CompsTesseract)) item.PowerOutput = 0; });
+                    CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item is CompsTesseract);
+                    net.powerComps.ForEach(item => { if (item != tesseract && item is CompsTesseract) item.PowerOutput = 0; });
 
                     float curProd = (net.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick);
                     tesseract.PowerOutput += 500 - curProd;
@@ -85,6 +100,8 @@ namespace CrossDimensionalPower
                 }
             }
 
+            //Log.Message("Total after all 500: " + totalAvailable);
+
             List<PowerNet> netsWithBattery = nets.Where(item => item.batteryComps != null).ToList();
             float toDistribute;
             if (netsWithBattery.Count > 0)
@@ -92,10 +109,11 @@ namespace CrossDimensionalPower
 
                 toDistribute = totalAvailable / netsWithBattery.Count;
                 totalAvailable = 0;
+                //Log.Message("To Distribute Batteries: "+toDistribute);
                 foreach (PowerNet net in netsWithBattery)
                 {
-                    CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                    net.powerComps.ForEach(item => { if (item != tesseract && item.GetType() == typeof(CompsTesseract)) item.PowerOutput = 0; });
+                    CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item is CompsTesseract);
+                    net.powerComps.ForEach(item => { if (item != tesseract && item is CompsTesseract) item.PowerOutput = 0; });
 
                     tesseract.PowerOutput += toDistribute;
                 }
@@ -104,10 +122,11 @@ namespace CrossDimensionalPower
             {
                 toDistribute = totalAvailable / nets.Count;
                 totalAvailable = 0;
+                //Log.Message("To Distribute No Batteries: " + toDistribute);
                 foreach (PowerNet net in nets)
                 {
                     CompsTesseract tesseract = (CompsTesseract)net.powerComps.First(item => item.GetType() == typeof(CompsTesseract));
-                    net.powerComps.ForEach(item => { if (item != tesseract && item.GetType() == typeof(CompsTesseract)) item.PowerOutput = 0; });
+                    net.powerComps.ForEach(item => { if (item != tesseract && item is CompsTesseract) item.PowerOutput = 0; });
 
                     tesseract.PowerOutput += toDistribute;
                 }
