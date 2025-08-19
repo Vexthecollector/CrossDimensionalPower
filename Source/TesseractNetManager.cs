@@ -77,6 +77,7 @@ namespace CrossDimensionalPower
 
             //Log.Message("Initial Total: "+totalAvailable);
             //Sets all Networks to be net 0 if they have free power.
+
             foreach (PowerNet net in nets.Where(net => (net.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) > 0))
             {
                 CompsTesseract tesseract = setTesseractToZero(net);

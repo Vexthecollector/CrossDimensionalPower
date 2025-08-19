@@ -33,7 +33,7 @@ namespace CrossDimensionalPower
             if (respawningAfterLoad) return;
         }
 
-        public override void PostDeSpawn(Map map)
+        public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
         {
             TesseractNetConnectionMaker.Instance.RemoveTesseract(this);
             base.PostDeSpawn(map);
