@@ -67,7 +67,9 @@ namespace CrossDimensionalPower
 
         public void AddTesseract(CompsTesseract tesseract)
         {
+
             TesseractNet.Instance.Tesseracts.AddDistinct(tesseract);
+            Log.Message("Added Tesseract"+tesseract.Name);
         }
 
         public void RemoveTesseract(CompsTesseract tesseract)
