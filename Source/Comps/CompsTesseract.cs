@@ -16,8 +16,6 @@ namespace CrossDimensionalPower
         private CompFlickable compFlickable;
         private CompBreakdownable compBreakdownable;
         public float curPower;
-
-        public TesseractList TesseractList;
         public new CompProperties_Tesseract Props => (CompProperties_Tesseract)props;
 
 

@@ -13,11 +13,13 @@ namespace CrossDimensionalPower
         private readonly List<PowerNet> powerNets;
         private readonly List<CompsTesseract> tesseracts;
         private readonly List<TesseractList> tesseractLists;
+        public float tesseractPower { get { return tesseracts.Sum(t => t.PowerOutput); } }
         private TesseractNet()
         {
             powerNets = new List<PowerNet>();
             tesseracts = new List<CompsTesseract>();
             tesseractLists = new List<TesseractList>();
+
         }
 
 
@@ -42,5 +44,6 @@ namespace CrossDimensionalPower
         {
             get { return this.tesseractLists; }
         }
+
     }
 }

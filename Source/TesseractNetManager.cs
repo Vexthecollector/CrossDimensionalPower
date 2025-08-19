@@ -41,7 +41,7 @@ namespace CrossDimensionalPower
 
             CompsTesseract tesseract = null;
 
-            for (int i = net.powerComps.Count-1; i >= 0; i--)
+            for (int i = net.powerComps.Count - 1; i >= 0; i--)
             {
                 if (net.powerComps[i] is CompsTesseract tesseract1)
                 {
@@ -59,19 +59,17 @@ namespace CrossDimensionalPower
             return tesseract;
         }
 
-
+        /*
         public void DistributePower()
         {
             List<PowerNet> nets = new List<PowerNet>();
             List<CompsTesseract> tesseracts = TesseractNet.Instance.Tesseracts;
-            //TesseractNet.Instance.Tesseracts.ForEach(tes => nets.AddDistinct(tes.PowerNet));
             float tesPower = 0;
-            for (int i = tesseracts.Count-1; i >= 0; i--)
+            for (int i = tesseracts.Count - 1; i >= 0; i--)
             {
                 nets.AddDistinct(tesseracts[i].PowerNet);
                 tesPower += tesseracts[i].PowerOutput;
             }
-            //float tesPower = tesseracts.Sum(tes => tes.PowerOutput);
             float totalAvailable = 0;
 
 
@@ -104,7 +102,10 @@ namespace CrossDimensionalPower
                 }
             }
 
+
+
             //Log.Message("Total after all 0: " + totalAvailable);
+            //Ensures that all Networks have at least 500 Watts to protect against random changes in power consumption.
 
             if ((totalAvailable / nets.Count) > 500)
             {
@@ -120,6 +121,7 @@ namespace CrossDimensionalPower
             }
 
             //Log.Message("Total after all 500: " + totalAvailable);
+            //All Excess power will be send to powernets with batteries
 
             List<PowerNet> netsWithBattery = nets.Where(item => item.batteryComps != null).ToList();
             float toDistribute;
@@ -148,75 +150,27 @@ namespace CrossDimensionalPower
                     tesseract.PowerOutput += toDistribute;
                 }
             }
-
-
-        }
-
-        /*
-        public void EqualizePower()
-        {
-            TesseractNetConnectionMaker.Instance.RecheckClasses();
-            if (TesseractNet.Instance.TesseractLists.NullOrEmpty()) return;
-
-            float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item => item.curEnergyGain);
-
-            //float totalAvailable = TesseractNet.Instance.TesseractLists.Sum(item => { if (item.curEnergyGain > 0) return item.curEnergyGain; return 0; });
-            foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
-            {
-                if (tesseractClass.curEnergyGain < totalAvailable)
-                {
-                    totalAvailable += tesseractClass.curEnergyGain;
-                    tesseractClass.curEnergyGain = 0;
-                    tesseractClass.tesseract[0].PowerOutput = 0;
-                    tesseractClass.tesseract[0].curPower = 0;
-                }
-                else
-                {
-                    tesseractClass.curEnergyGain = tesseractClass.curEnergyGain + totalAvailable;
-                    totalAvailable = 0;
-                    tesseractClass.tesseract[0].PowerOutput = tesseractClass.curEnergyGain;
-                    tesseractClass.tesseract[0].curPower = tesseractClass.curEnergyGain;
-                }
-            }
-            if (totalAvailable / TesseractNet.Instance.TesseractLists.Count() > 500)
-            {
-                foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists.Where(item => item.curEnergyGain < 0))
-                {
-
-                    totalAvailable -= 500;
-                    tesseractClass.curEnergyGain = 500;
-                    tesseractClass.tesseract[0].PowerOutput = 500;
-                    tesseractClass.tesseract[0].curPower = 500;
-
-                }
-            }
-            CheckBatteries();
-
-            List<TesseractList> tesseractClassesWB = TesseractNet.Instance.TesseractLists.Where(item => item.maxStoredEnergy > 0).ToList();
-            float toDistribute = totalAvailable / tesseractClassesWB.Count();
-            totalAvailable = 0;
-            foreach (TesseractList tesseractClass in tesseractClassesWB)
-            {
-                tesseractClass.curEnergyGain = toDistribute;
-                tesseractClass.tesseract[0].PowerOutput = toDistribute;
-                tesseractClass.tesseract[0].curPower = toDistribute;
-            }
-
-        }
-
-        public void CheckBatteries()
-        {
-            foreach (TesseractList tesseractClass in TesseractNet.Instance.TesseractLists)
-            {
-                if (!tesseractClass.tesseract[0].PowerNet.batteryComps.NullOrEmpty())
-                {
-                    tesseractClass.curStoredEnergy = tesseractClass.tesseract[0].PowerNet.CurrentStoredEnergy();
-                    tesseractClass.maxStoredEnergy = tesseractClass.tesseract[0].PowerNet.batteryComps.Sum(battery => battery.Props.storedEnergyMax);
-                }
-
-            }
-
         }
         */
+        public void DistributePowerBetter()
+        {
+            Dictionary<PowerNet, bool> nets = new Dictionary<PowerNet, bool>();
+            List<CompsTesseract> tesseracts = TesseractNet.Instance.Tesseracts;
+            for (int i = tesseracts.Count - 1; i >= 0; i--)
+            {
+                nets.AddDistinct(tesseracts[i].PowerNet, true);
+            }
+            float totalAvailablePower = nets.Sum(t => t.Key.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick) - TesseractNet.Instance.tesseractPower;
+
+            float networkPowerSurplus = totalAvailablePower / nets.Count;
+            foreach (var tesseract in tesseracts)
+            {
+                if (nets[tesseract.PowerNet])
+                {
+                    tesseract.PowerOutput += networkPowerSurplus - (tesseract.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick);
+                    nets[tesseract.PowerNet] = false;
+                }
+            }
+        }
     }
 }

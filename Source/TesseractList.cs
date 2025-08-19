@@ -21,7 +21,6 @@ namespace CrossDimensionalPower
         public PowerNet powerNet;
         public float curEnergyGain;
         public List<CompsTesseract> tesseract = new List<CompsTesseract>();
-        public float curStoredEnergy = 0;
-        public float maxStoredEnergy = 0;
+
     }
 }
